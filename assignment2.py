@@ -14,6 +14,8 @@ import patsy as pt
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
+from xgboost import XGBClassifier
+from xgboost import XGBClassifier
 
 training = pd.read_csv("https://github.com/dustywhite7/Econ8310/raw/master/AssignmentData/assignment3.csv")
 
@@ -28,19 +30,24 @@ training["hour"] = training['DateTime'].map(lambda x: x.hour)
 training = training.drop('id', axis = 'columns')
 training = training.drop('DateTime', axis = 'columns')
 
-training
-
-# Commented out IPython magic to ensure Python compatibility.
-model = DecisionTreeClassifier()
-
 Y = training['meal']
 X = training.drop('meal', axis = 'columns')
 
-x, xt, y, yt = train_test_split(X, Y, test_size=0.33, random_state=42)
+model = DecisionTreeClassifier(max_depth=20, min_samples_leaf=10)
 
-modelFit = model.fit(x,y)
+modelFit = model.fit(X,Y)
 
-print("\n\nIn-sample accuracy: %s%%\n\n"
-#  % str(round(100*accuracy_score(y, model.predict(x)), 2)))
+testData = pd.read_csv("https://github.com/dustywhite7/Econ8310/raw/master/AssignmentData/assignment3test.csv")
 
-pred = model.predict(X)
+testData['DateTime'] = pd.to_datetime(testData['DateTime'])
+
+testData["day"] = testData['DateTime'].map(lambda x: x.day)
+testData["month"] = testData['DateTime'].map(lambda x: x.month)
+testData["year"] = testData['DateTime'].map(lambda x: x.year)
+testData["hour"] = testData['DateTime'].map(lambda x: x.hour)
+
+testData = testData.drop('id', axis = 'columns')
+testData = testData.drop('DateTime', axis = 'columns')
+Xt = testData.drop('meal', axis = 'columns')
+
+pred = model.predict(Xt)
